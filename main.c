@@ -5,7 +5,6 @@ char upperCase (char *x, int y); //make all letters in an array upper case
 //char rotate (char *x, int y ) //x is the message, y is the size of the message array,
 
 int main(){
-    //char alphabet[] = {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
     int k = 0, i = 0; //i is the index of the array to be used later
     k = 1; //k is the rotation amount
     char message[] = {"Where did you hide the body?"};
