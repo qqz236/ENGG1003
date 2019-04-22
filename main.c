@@ -4,7 +4,14 @@
 char upperCase (char *x, int y); //make all letters in an array upper case
 char roEncrypt(char *x, int y, int k, int i); //does rotation encryption with given k where x is the message, y is the size of the message array,
 //i is the array number
-char roDecrypt(char *x, int y, int i, int k);
+char roDecrypt(char *x, int y);
+
+
+
+
+
+
+
 
 int main(){
     int k = 0, i = 0;
@@ -21,27 +28,27 @@ int main(){
     printf("%c", roEncrypt(message, size, k, i));
     }
     //
-    //
-    //
-    //
-    //
-    //
-    //Rotation Decryption Not Given Key
+    //Rotation Decryption Given Key
     printf("\nDecrypted:  ");
-    for (i =0, k = 1; i < size, k < 27; i++){
-    printf("%c", roDecrypt(message, size, i, k));
+    roDecrypt(message, size);
+    printf("%s", message);
+    return 0;
     }
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    
-return 0;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //FUNCTION DEFINITIONS
@@ -68,15 +75,13 @@ char roEncrypt(char *x, int y, int k, int i) {
         return x[i]; //if it's some other ASCII punctuation, just print it as is
     }
     
-char roDecrypt(char *x, int y, int i, int k){
-    if{   
-       x[i] = x[i] - k - 26;
-        return x[i];
-        }
-    else if (x[i] + k <= 90 && x[i] >64){//if adding k gives value between A and Z, then just leave it at adding k
-        x[i] -= k;
-        return x[i];
-        }
-    else
-        return x[i]; //if it's some other ASCII punctuation, just print it as is
-    }   
+char roDecrypt(char *x, int y){
+    int i = 0, k = 1;
+    for (i = 0, k = 1; i < y; i++){
+        if (x[i] <= 90 && x[i] >= 65)
+            x[i] = x[i] - k;
+        else
+            x[i] = x[i];
+    }
+    return *x;
+    }
