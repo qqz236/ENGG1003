@@ -5,11 +5,8 @@ char upperCase (char *x, int y); //make all letters in an array upper case
 char roEncrypt(char *x, int y, int k, int i); //does rotation encryption with given k where x is the message, y is the size of the message array,
 //i is the array number
 char roDecrypt(char *x, int y);
-char subEncrypt(char c);
-
-
-
-
+char subEncrypt(char *key, char c);
+char subDecrypt(char *key, char c);
 
 int main(){
     
@@ -27,7 +24,7 @@ int main(){
     for (i = 0; i < size; i++){
     printf("%c", roEncrypt(message, size, k, i));
     }
-
+   
 
     //Rotation Decryption Given Key
     printf("\nDecrypted:  ");
@@ -35,10 +32,12 @@ int main(){
     printf("%s", message);
     
     
-    
+// Just printing out the original message to console   
 FILE *fp = fopen("message","r");
-printf("\n\nOriginal:        "); // Just printing out the original message to console
+FILE *out = fopen("output", "w");
+printf("\n\nOriginal:        "); 
 char c = 0;
+char key[] = {"ZYXWVUTSRQPONMLKJIHGFEDCBA"};
 while (c != ']'){
     c = fgetc(fp); //taking input single character at a time
     if (c == ']'){ //Breaks on the last character which is ']'
@@ -47,7 +46,8 @@ while (c != ']'){
     }
     printf("%c", c); //print original message char by char
 }
-//Substitution Encryption with key given in function
+
+//Substitution Encryption with key
     printf("\nSub Encrypted:   "); 
     fseek(fp, 0, SEEK_SET); //Start from beginning of file for encryption
     while (feof(fp) == 0){
@@ -55,22 +55,28 @@ while (c != ']'){
         if (c == ']'){ //Breaks on the last character which is ']'
         c = ' ';        
         break; }
-        printf("%c", subEncrypt(c));
+        printf("%c", subEncrypt(key, c));
+        fputc(subEncrypt(key, c), out);  
     } 
-    fclose(fp);
+    fputc(']', out);
 
+//Substitution Decryption with key
+
+    printf("Sub Decrypted:    ");
+    while (feof(out) == 0){
+        c = fgetc(out); //taking input single character at a time
+        if (c == ']'){ //Breaks on the last character which is ']'
+            c = ' ';        
+            break; }
+        printf("%c", subDecrypt(key, c));
+        fputc(subDecrypt(key, c), out);
+    }
+    
+    fclose(fp);
+    fclose(out);
 
     return 0;
     }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -116,14 +122,23 @@ char roDecrypt(char *x, int y){
     return *x;
 }
 
+//Sub Encryption - making each letter according to given key
+char subEncrypt(char *key, char c){   //Substitution Cipher Encryption Given Key
+    //make each letter according to key
+    if (c > 64 && c < 91)
+        return key[c-65];
+    else if (c > 96 && c < 123)
+        return key[c - 32 - 65];
+    else 
+        return c; 
+}
 
-char subEncrypt(char c){   //Substitution Cipher Encryption Given Key
-        //make each letter according to key
-        char key[] = {"ZYXWVUTSRQPONMLKJIHGFEDCBA"};
-        if (c > 64 && c < 91)
-            return key[c-65];
+char subDecrypt(char *key, char c){
+    /*if (c > 64 && c < 91)
+            return key[c+65];
         else if (c > 96 && c < 123)
-            return key[c - 32 - 65];
+            return key[c + 32 + 65];
         else 
-            return c; 
+            return c; */
+    return 0;
 }
