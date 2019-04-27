@@ -38,6 +38,7 @@ FILE *out = fopen("output", "w");
 printf("\n\nOriginal:        "); 
 char c = 0;
 char key[] = {"ZYXWVUTSRQPONMLKJIHGFEDCBA"};
+char alphabet[] = {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
 while (c != ']'){
     c = fgetc(fp); //taking input single character at a time
     if (c == ']'){ //Breaks on the last character which is ']'
@@ -59,21 +60,29 @@ while (c != ']'){
         fputc(subEncrypt(key, c), out);  
     } 
     fputc(']', out);
-
-//Substitution Decryption with key
-
-    printf("Sub Decrypted:    ");
-    while (feof(out) == 0){
-        c = fgetc(out); //taking input single character at a time
-        if (c == ']'){ //Breaks on the last character which is ']'
-            c = ' ';        
-            break; }
-        printf("%c", subDecrypt(key, c));
-        fputc(subDecrypt(key, c), out);
-    }
-    
     fclose(fp);
     fclose(out);
+    fp = 0;
+    out = 0;
+
+//Substitution Decryption with key
+    
+    printf("\nSub Decrypted:    ");
+    FILE *mess = fopen("message","w"); //reopening both files to switch the roles
+    FILE *put = fopen("output", "r");
+    
+    while (feof(put) == 0){
+        c = fgetc(put); //taking input single character at a time
+        if (c == ']'){ //Breaks on the last character which is ']'
+            c = ' ';        
+            break; 
+        }
+        printf("%c", subDecrypt(alphabet, c));
+        fputc(subDecrypt(alphabet, c), mess);
+    }
+    fclose(mess);
+    fclose(put);   
+    
 
     return 0;
     }
@@ -134,11 +143,9 @@ char subEncrypt(char *key, char c){   //Substitution Cipher Encryption Given Key
 }
 
 char subDecrypt(char *key, char c){
-    /*if (c > 64 && c < 91)
-            return key[c+65];
-        else if (c > 96 && c < 123)
-            return key[c + 32 + 65];
+    if (c > 64 && c < 91)
+            return 38572834/*key[c -65]*/;
         else 
-            return c; */
+            return c;
     return 0;
 }
