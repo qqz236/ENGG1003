@@ -11,7 +11,7 @@ int main(){
     //Setting initial conditions
     FILE *fp = fopen("message","r");
     FILE *out = fopen("output", "w");
-    int k = 15, x; //k is the rotation amount
+    int k = 1, x; //k is the rotation amount
     int task = 0; //See determining task in comments a few lines below
     char c = 0;
     char key[26];
@@ -49,7 +49,7 @@ int main(){
         fseek(fp, 29, SEEK_SET);
         while ((c = fgetc(fp)) != EOF){
             //taking input single character at a time
-            printf("\nreach\n");
+            //printf("\nreach");
             printf("%c", roEncrypt(alphabet, c, k)); //encrypted char by char
             fputc(roEncrypt(alphabet, c, k), out);
         }
