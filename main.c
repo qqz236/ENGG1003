@@ -11,7 +11,7 @@ int main(){
     //Setting initial conditions
     FILE *fp = fopen("message","r");
     FILE *out = fopen("output", "w");
-    int k = 1, x; //k is the rotation amount
+    int k = 1, x; //k is the rotation amount   
     int task = 0; //See determining task in comments a few lines below
     char c = 0;
     char key[26];
