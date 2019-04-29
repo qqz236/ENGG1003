@@ -1,91 +1,136 @@
 #include<stdio.h>
-//encryption given k = 1
 
-char upperCase (char *x, int y); //make all letters in an array upper case
-char roEncrypt(char *x, int y, int k, int i); //does rotation encryption with given k where x is the message, y is the size of the message array,
-//i is the array number
-char roDecrypt(char *x, int y);
+//Function Prototypes
+char roEncrypt(char *alpha, char c, int k); //passes alphabet, current letter the function must work on and the rotation key k
+char roDecrypt(char *alpha, char c, int k);
 char subEncrypt(char *key, char c);
-char subDecrypt(char *key, char c);
+char subDecrypt(char *x, char *y, char c); //x is alphabet array and c are the letters from input file
+char countGreatest(char *count); //finds the letter that occurs most in a file, where count is an array that stores the presence of each letter in a count[26]
 
 int main(){
+    //Setting initial conditions
+    FILE *fp = fopen("message","r");
+    FILE *out = fopen("output", "w");
+    int k = 15, x; //k is the rotation amount
+    int task = 0; //See determining task in comments a few lines below
+    char c = 0;
+    char key[26];
+    char alphabet[] = {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+    char count[26] = {0};
     
-    int k = 0, i = 0;
-    k = 1; //k is the rotation amount
-    char message[] = {"Where did you hide the body?"};
-    int size = sizeof(message)/sizeof(char) - 1; // create interger 'size' and is the length of the array
+    //To determine which task will run
+    /*
+     * If task = 1, then the rotation encryption will run
+     * If task = 2, then the rotation decryption will run
+     * If task = 3, then the substitution encryption will run
+     * If task = 4, then the substitution decryption will run
+     * 
+     * Task that will be run is dependent on the number on the first line of message input file.
+     */
+    //First, print out original message
+    printf("Original Message:   \n");
+    scanf("%d", &task);//scan first line to task
+    fseek(fp, 29, SEEK_SET);
+    while ((c = fgetc(fp)) != EOF){
+            //taking input single character at a time
+            printf("%c", c); //print original message char by char
+        if (c > 64 && c < 91) {//quick analysis of presence of each letter
+             x = c - 'A';
+             count[x]++;
+          }
+        }
     
-    upperCase(message, size); //calling function to make all letters upper case
-    printf("Original:   %s\n", message); //printing the original message
+    //scan second line for key
+    scanf("%s", &key);
     
-    
-    //Rotation Encryption
-    printf("Encrypted:  ");
-    for (i = 0; i < size; i++){
-    printf("%c", roEncrypt(message, size, k, i));
-    }
+    switch(task){
+    case 1: //Rotation Encryption
+        printf("\nRotation Encrypted:      ");  
+        fseek(fp, 29, SEEK_SET);
+        while ((c = fgetc(fp)) != EOF){
+            //taking input single character at a time
+            printf("\nreach\n");
+            printf("%c", roEncrypt(alphabet, c, k)); //encrypted char by char
+            fputc(roEncrypt(alphabet, c, k), out);
+        }
+        break;
+        
    
+    case 2: //Rotation Decryption With or Without Key
+        printf("\n\nRotation Decrypted:\n");
+        fseek(fp, 29, SEEK_SET); //start reading file from beginning
+        while ((c = fgetc(fp)) != EOF){
+            if (key[1] == ' '){ //if there is no key    
+                    if (c > 64 && c < 91){
+                        k = countGreatest(count) - 'E' + 4;
+                            if(k<0)
+                                k = 26 + k;
+                        printf("%c", roDecrypt(alphabet, c, k));
+                        fputc(roDecrypt(alphabet, c, k), out);
+                    }
+                        
+                    else{
+                        printf("%c", c);
+                        fputc(c, out);
+                    }
+            }       
+            else{
+                
+                
+                //taking input single character at a time
+                printf("%c", roDecrypt(alphabet, c, k)); //decrypted char by char
+                fputc(roDecrypt(alphabet, c, k), out);
+            }
 
-    //Rotation Decryption Given Key
-    printf("\nDecrypted:  ");
-    roDecrypt(message, size);
-    printf("%s", message);
+        }
+        break;
+        
     
+    case 3: //Substitution Encryption with key
+        printf("\nSub Encrypted:\n"); 
+        fseek(fp, 29, SEEK_SET); //Start from beginning of file for encryption
+        while ((c = getc(fp)) != EOF){
+            printf("%c", subEncrypt(key, c));
+            fputc(subEncrypt(key, c), out);  
+        } 
+        break;
+        
     
-// Just printing out the original message to console   
-FILE *fp = fopen("message","r");
-FILE *out = fopen("output", "w");
-printf("\n\nOriginal:        "); 
-char c = 0;
-char key[] = {"ZYXWVUTSRQPONMLKJIHGFEDCBA"};
-char alphabet[] = {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
-while (c != ']'){
-    c = fgetc(fp); //taking input single character at a time
-    if (c == ']'){ //Breaks on the last character which is ']'
-        c = ' ';        
-        break; 
+    case 4: //Substitution Decryption with key
+        
+        fseek(fp, 29, SEEK_SET);
+        printf("\nSub Decrypted:\n");
+        if (key[1] == ' '){ //if there is no key then print all Es and hope for the best
+            while ((c = getc(fp)) != EOF){
+                if (c > 64 && c < 91){
+                    printf("%c", roDecrypt(alphabet, key, c) + 4);
+                    fputc(roDecrypt(alphabet, key, c) + 4, out);
+                }
+                    
+                else{
+                    printf("%c", c);
+                    fputc(c, out);
+                }
+
+            }
+        }       
+        else{
+        while ((c = getc(fp)) != EOF){
+            printf("%c", subDecrypt(alphabet, key, c) + 4);
+            fputc(subDecrypt(alphabet, key, c) + 4, out);
+        }}
+        break;
+        
+        
+    default: 
+    printf("\nNo task selected");
     }
-    printf("%c", c); //print original message char by char
+       
+    fclose(out);
+    fclose(fp);   
+    return 0;
 }
 
-//Substitution Encryption with key
-    printf("\nSub Encrypted:   "); 
-    fseek(fp, 0, SEEK_SET); //Start from beginning of file for encryption
-    while (feof(fp) == 0){
-        c = fgetc(fp); //taking input single character at a time
-        if (c == ']'){ //Breaks on the last character which is ']'
-        c = ' ';        
-        break; }
-        printf("%c", subEncrypt(key, c));
-        fputc(subEncrypt(key, c), out);  
-    } 
-    fputc(']', out);
-    fclose(fp);
-    fclose(out);
-    fp = 0;
-    out = 0;
-
-//Substitution Decryption with key
-    
-    printf("\nSub Decrypted:    ");
-    FILE *mess = fopen("message","w"); //reopening both files to switch the roles
-    FILE *put = fopen("output", "r");
-    
-    while (feof(put) == 0){
-        c = fgetc(put); //taking input single character at a time
-        if (c == ']'){ //Breaks on the last character which is ']'
-            c = ' ';        
-            break; 
-        }
-        printf("%c", subDecrypt(alphabet, c));
-        fputc(subDecrypt(alphabet, c), mess);
-    }
-    fclose(mess);
-    fclose(put);   
-    
-
-    return 0;
-    }
 
 
 
@@ -95,40 +140,30 @@ while (c != ']'){
 
 
 //FUNCTION DEFINITIONS
-char upperCase (char *x, int y) { //make all letters in an array upper case
-    int i;
-    for (i = 0; i < y; i++){ //make everything upper case
-            if (x[i] >=97 && x[i] <= 122)   {
-                x[i] -= 32;
-            } 
+char roEncrypt(char *alpha, char c, int k) {
+    if (c > 96 && c < 123){ //make all letters upper case
+        c -= 32;
+    }
+    if (c > 64 && c < 91){ //if it's a capital letter
+        if (c + k > 90){ //if the ASCII code of the letter plus the rotation key exceeds allowed value of 90, then minus 26 to go between 65 and 90
+            c -= 26;
+            return alpha[c - 65];
         }
-        return 0;
+    }
+    else return c; //if it's not a letter, just return as is
 }
-
-char roEncrypt(char *x, int y, int k, int i) {
-    if (x[i] + k > 90){ //if adding k gives a value greater than Z, then minus 26 to make a value between A and Z
-        x[i] = x[i] + k - 26;
-        return x[i];
-        }
-    else if (x[i] + k <= 90 && x[i] >64){//if adding k gives value between A and Z, then just leave it at adding k
-        x[i] += k;
-        return x[i];
-        }
-    else
-        return x[i]; //if it's some other ASCII punctuation, just print it as is
-    }
     
-char roDecrypt(char *x, int y){
-    int i = 0, k = 1;
-    for (i = 0, k = 1; i < y; i++){
-        if (x[i] <= 90 && x[i] >= 65)
-            x[i] = (x[i] - k);
-            if (x[i] == 64)
-                x[i] += 26;
-        else
-            x[i] = x[i];
+char roDecrypt(char *alpha, char c, int k){
+    if (c > 96 && c < 123){ //make all letters upper case
+        c -= 32;
     }
-    return *x;
+    if (c > 64 && c < 91){ //if it's a capital letter
+        if (c - k <= 64){ //if the ASCII code of the letter minus the rotation key is less than 65, then plus 26 to go between 65 and 90
+            c += 26;
+            return alpha[(c - k) - 65];
+        }
+    }
+    else return c; //if it's not a letter, just return as is
 }
 
 //Sub Encryption - making each letter according to given key
@@ -142,10 +177,28 @@ char subEncrypt(char *key, char c){   //Substitution Cipher Encryption Given Key
         return c; 
 }
 
-char subDecrypt(char *key, char c){
-    if (c > 64 && c < 91)
-            return 38572834/*key[c -65]*/;
-        else 
-            return c;
-    return 0;
+char subDecrypt(char *x, char *y, char c){
+    //find index of key that the character belongs to
+        int i, index;
+        for (i = 0, index = 0; i <= 25; i++){
+            int compar = y[c - 65]; 
+            if (x[i] == compar){
+                index = i;}
+        }
+        
+        if (c > 64 && c < 91){
+                return x[index];}
+            else
+                return c;
+}
+
+char countGreatest(char *count){
+    int c = 0, greatest;
+     
+    for (c = 0, greatest  = 0; c < 26; c++){
+        if (count[c] > greatest){
+        greatest = count[c];
+        }
+    }
+    return greatest + 38;
 }
